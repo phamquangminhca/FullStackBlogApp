@@ -103,29 +103,62 @@ const profileCtrl = async (req, res) => {
     }
 }
 
-const uploadProfilePhotoCtrl = async (req, res) => {
+const uploadProfilePhotoCtrl = async (req, res, next) => {
+    console.log(req.file.path);
     try {
+        //Find the user to be updated
+        const userId = req.session.userAuth;
+        const userFound = await User.findById(userId);
+
+        //Check if user is found
+        if (!userFound) {
+            return next(appErr('User not found', 403));
+        }
+
+        //Update profile photo
+        await User.findByIdAndUpdate(userId, {
+            profileImage: req.file.path,
+        }, {
+            new: true,
+        });
+
         res.json({
             status: 'success',
-            user: 'Upload profile photo'
+            data: 'You have successfully updated your profile photo',
         })
     } catch (error) {
-        res.json(error);
+        next(appErr(error.message));
     }
 }
 
 const uploadCoverPhotoCtrl = async (req, res) => {
+    console.log(req.file.path);
     try {
+        //Find the user to be updated
+        const userId = req.session.userAuth;
+        const userFound = await User.findById(userId);
+
+        //Check if user is found
+        if (!userFound) {
+            return next(appErr('User not found', 403));
+        }
+
+        //Update profile photo
+        await User.findByIdAndUpdate(userId, {
+            coverImage: req.file.path,
+        }, {
+            new: true,
+        });
         res.json({
             status: 'success',
-            user: 'Upload cover photo'
+            data: 'You have successfully updated your cover photo',
         })
     } catch (error) {
         res.json(error);
     }
 }
 
-const updatePasswordCtrl = async (req, res) => {
+const updatePasswordCtrl = async (req, res, next) => {
     const { password } = req.body;
     try {
         //Check if user is updating the password
@@ -144,7 +177,7 @@ const updatePasswordCtrl = async (req, res) => {
             user: 'Password has been changed successfully',
         })
     } catch (error) {
-        res.json(error);
+        return next(appErr('Please provide password field'));
     }
 }
 
