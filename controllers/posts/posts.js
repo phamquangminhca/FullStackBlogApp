@@ -38,7 +38,7 @@ const createPostCtrl = async (req, res, next) => {
 
 const fetchPostsCtrl = async (req, res, next) => {
     try {
-        const posts = await Post.find();
+        const posts = await Post.find().populate('comments');
         res.json({
             status: 'success',
             data: posts,
@@ -54,7 +54,7 @@ const fetchPostCtrl = async (req, res, next) => {
         const id = req.params.id;
 
         //find the post
-        const post = await Post.findById(id);
+        const post = await Post.findById(id).populate('comments');
 
         res.json({
             status: 'success',
@@ -76,7 +76,7 @@ const deletePostCtrl = async (req, res, next) => {
         }
 
         //delete post
-        const deletedPost = await Post.findByIdAndDelete(req.params.id);
+        await Post.findByIdAndDelete(req.params.id);
   
         // Remove the deleted post's ID from User
         await User.updateMany(
@@ -119,7 +119,7 @@ const updatePostCtrl = async (req, res, next) => {
             data: postUpdated,
         })
     } catch (error) {
-        res.json(error);
+        next(appErr(error.message));
     }
 }
 
