@@ -7,14 +7,19 @@ const registerCtrl = async (req, res, next) => {
     const { fullname, email, password } = req.body;
     //check if field is empty
     if(!fullname || !email || !password) {
-        return next(appErr('All field are required'));
+        return res.render('users/register', {
+            error: 'All fields are required',
+        });
     }
     try {
         //Check if user exists (email)
         const userFound = await User.findOne({email});
         //Throw an error
         if(userFound) {
-            return next(appErr('User already exist'))
+            // return next(appErr('User already exist'))
+            return res.render('users/register', {
+                error: 'User already exist',
+            });
         }
         //Hash password
         const salt = await bcrypt.genSalt(10);
@@ -25,53 +30,55 @@ const registerCtrl = async (req, res, next) => {
             email,
             password: passwordHashed,
         })
-        res.json({
-            status: 'success',
-            data: user
-        })
+        //redirect
+        res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        res.json(error);
-        // return next(appErr(error))
+        // res.json(error);
+        return next(appErr(error))
     }
 }
 
 const loginCtrl = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return next(appErr('Email and password fields are required'));
+        // return next(appErr('Email and password fields are required'));
+        return res.render('users/login', {
+            error: 'Email and password fields are required',
+        });
     }
     try {
         //Check if email exists
         const userFound = await User.findOne({ email });
         if (!userFound) {
-            return next(appErr('Invalid login credentials'));
+            // return next(appErr('Invalid login credentials'));
+            return res.render('users/login', {
+                error: 'Invalid login credentials',
+            });
         }
         //Verify password
         const isPasswordValid = await bcrypt.compare(password, userFound.password);
         if (!isPasswordValid) {
-            return next(appErr('Invalid login credentials'));
+            // return next(appErr('Invalid login credentials'));
+            return res.render('users/login', {
+                error: 'Invalid login credentials',
+            });
         }
         //save the user into session
         req.session.userAuth = userFound._id;
         console.log(req.session);
-        res.json({
-            status: 'success',
-            data: userFound
-        })
+
+        //redirect
+        res.redirect('/api/v1/users/profile-page')
     } catch (error) {
         res.json(error);
     }
 }
 
 const logoutCtrl = async (req, res) => {
-    try {
-        res.json({
-            status: 'success',
-            user: 'Logout'
-        })
-    } catch (error) {
-        res.json(error);
-    }
+    //destroy session
+    req.session.destroy(() => {
+        res.redirect('/api/v1/users/login');
+    });
 }
 
 const userDetailsCtrl = async (req, res) => {
@@ -94,40 +101,44 @@ const profileCtrl = async (req, res) => {
         // console.log(req.session.userAuth);
         //get the logged in user
         const user = await User.findById(req.session.userAuth).populate('posts').populate('comments');
-        res.json({
-            status: 'success',
-            data: user,
-        })
+        res.render('users/profile', { user })
     } catch (error) {
         res.json(error);
     }
 }
 
 const uploadProfilePhotoCtrl = async (req, res, next) => {
-    console.log(req.file.path);
     try {
+        //check if file exist
+        if(!req.file) {
+            return res.render('users/uploadProfilePhoto', {
+                error: 'Please upload image',
+            })
+        }
+
         //Find the user to be updated
         const userId = req.session.userAuth;
         const userFound = await User.findById(userId);
 
         //Check if user is found
         if (!userFound) {
-            return next(appErr('User not found', 403));
+            return res.render('users/uploadProfilePhoto', {
+                error: 'User not found',
+            })
         }
 
         //Update profile photo
-        await User.findByIdAndUpdate(userId, {
+        const user = await User.findByIdAndUpdate(userId, {
             profileImage: req.file.path,
         }, {
             new: true,
         });
 
-        res.json({
-            status: 'success',
-            data: 'You have successfully updated your profile photo',
-        })
+        res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        next(appErr(error.message));
+        return res.render('users/uploadProfilePhoto', {
+            error: error.message,
+        })
     }
 }
 

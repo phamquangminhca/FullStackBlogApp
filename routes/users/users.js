@@ -10,6 +10,34 @@ const upload = multer({
     storage,
 })
 
+//rendering forms
+userRoutes.get('/login', (req, res) => {
+    res.render('users/login', {
+        error: '',
+    });
+})
+
+userRoutes.get('/register', (req, res) => {
+    res.render('users/register', {
+        error: '',
+    });
+})
+
+userRoutes.get('/upload-profile-photo-form', (req, res) => {
+    res.render('users/uploadProfilePhoto', {
+        error:'',
+    });
+})
+
+userRoutes.get('/upload-cover-photo-form', (req, res) => {
+    res.render('users/uploadCoverPhoto');
+})
+
+userRoutes.get('/update-user-form', (req, res) => {
+    res.render('users/updateUser');
+})
+
+
 //POST/api/v1/users/register
 userRoutes.post('/register', registerCtrl);
 
@@ -20,7 +48,7 @@ userRoutes.post('/login', loginCtrl);
 userRoutes.get('/logout', logoutCtrl);
 
 //GET/api/v1/users/profile
-userRoutes.get('/profile', protected, profileCtrl);
+userRoutes.get('/profile-page', protected, profileCtrl);
 
 //PUT/api/v1/users/profile-photo-upload
 userRoutes.put('/profile-photo-upload', protected, upload.single('profile'), uploadProfilePhotoCtrl);
