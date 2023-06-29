@@ -30,7 +30,9 @@ userRoutes.get('/upload-profile-photo-form', (req, res) => {
 })
 
 userRoutes.get('/upload-cover-photo-form', (req, res) => {
-    res.render('users/uploadCoverPhoto');
+    res.render('users/uploadCoverPhoto', {
+        error:'',
+    });
 })
 
 userRoutes.get('/update-user-form', (req, res) => {
