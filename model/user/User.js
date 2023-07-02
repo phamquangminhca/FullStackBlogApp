@@ -15,6 +15,16 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        role: {
+            type: String,
+            default: 'Blogger',
+            required: true,
+        },
+        bio: {
+            type: String,
+            default: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nostrum adipisci eligendi nobis itaque ex?',
+            required: true,
+        },
         profileImage: {
             type: String,
         },

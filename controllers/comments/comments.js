@@ -29,39 +29,78 @@ const createCommentCtrl = async (req, res, next) => {
         await post.save({validateBeforeSave: false});
         await user.save({validateBeforeSave: false});
 
+        res.redirect(`/api/v1/posts/${post._id}`);
 
-        res.json({
-            status: 'success',
-            data: comment,
-        })
+
     } catch (error) {
-        next(appErr(error.message));
+        res.render('posts/postDetails', {
+            post: await Post.findById(req.params.id)
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'user',
+                    model: 'User'
+                }
+            })
+            .populate('user'),
+            error: error.message,
+        });
     }
 }
 
 const commentDetailsCtrl = async (req, res, next) => {
     try {
-        res.json({
-            status: 'success',
-            user: 'Comment details'
+        const comment = await Comment.findById(req.params.id);
+        const post = await Post.findById(req.params.postId);
+        res.render('comments/updateComment', {
+            comment,
+            post,
+            error: '',
         })
     } catch (error) {
-        next(appErr(error.message));
+        return res.render('posts/postDetails', {
+            post: '',
+            error: error.message,
+        });
     }
 }
 
 const deleteCommentCtrl = async (req, res, next) => {
     try {
+        const postId = req.query.postId;
+
         //find the comment
         const comment = await Comment.findById(req.params.id);
 
         if (!comment) {
-            return next(appErr('Comment Not Found'));
+            return res.render('posts/postDetails', {
+                post: await Post.findById(postId)
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'user',
+                        model: 'User'
+                    }
+                })
+                .populate('user'),
+                error: 'Comment Not Found',
+            });
         }
 
         //check if the comment belongs to the logged in user
         if (comment.user.toString() !== req.session.userAuth.toString()) {
-            return next(appErr('You are not allowed to delete this comment', 403));
+            return res.render('posts/postDetails', {
+                post: await Post.findById(postId)
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'user',
+                        model: 'User'
+                    }
+                })
+                .populate('user'),
+                error: 'You are not allowed to delete this comment',
+            });
         }
         
         //delete comment
@@ -79,10 +118,8 @@ const deleteCommentCtrl = async (req, res, next) => {
             { $pull: { comments: req.params.id } }
         );
         
-        res.json({
-            status: 'success',
-            data: 'Comment has been deleted successfully'
-        })
+        res.redirect(`/api/v1/posts/${postId}`);
+
     } catch (error) {
         next(appErr(error.message));
     }
@@ -91,12 +128,17 @@ const deleteCommentCtrl = async (req, res, next) => {
 const updateCommentCtrl = async (req, res, next) => {
     const { message } = req.body;
     try {
+        const postId = req.query.postId;
         //find the comment
         const comment = await Comment.findById(req.params.id);
 
         //check if the comment belongs to the logged in user
         if (comment.user.toString() !== req.session.userAuth.toString()) {
-            return next(appErr('You are not allowed to update this comment', 403));
+            return res.render('comments/updateComment', {
+                comment,
+                post: await Post.findById(postId),
+                error: 'You are not allowed to update this comment',
+            })
         }
         
         //update
@@ -106,12 +148,13 @@ const updateCommentCtrl = async (req, res, next) => {
             new: true,
         });
         
-        res.json({
-            status: 'success',
-            data: commentUpdated,
-        })
+        res.redirect(`/api/v1/posts/${postId}`);
     } catch (error) {
-        next(appErr(error.message));
+        return res.render('comments/updateComment', {
+            comment: await Comment.findById(req.params.id),
+            post: await Post.findById(req.query.postId),
+            error: error.message,
+        })
     }
 }
 

@@ -19,37 +19,6 @@ p {
   margin-bottom: 1.5rem;
 }
 
-/* Nav */
-nav {
-  width: 100%;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 10px;
-}
-
-nav img {
-  width: 100px;
-  margin: 4px;
-}
-
-nav ul {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  list-style: none;
-  padding: 2px;
-}
-nav ul li {
-  padding: 3px;
-}
-nav ul li a {
-  text-decoration: none;
-}
-
 .create-post-btn {
   background-color: #ff5a5f;
   color: #fff;
@@ -78,7 +47,7 @@ header {
 }
 
 .header-content h1 {
-  font-size: 5rem;
+  font-size: 2.3rem;
   padding: 10px;
   margin-top: 20px;
   color: #14213d;
@@ -158,85 +127,20 @@ main {
   color: #062e83;
   margin-right: 10px;
 }
-/* Footer */
-footer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 10px;
-  background-color: #003049;
-  color: #ffff;
-  margin-top: 30px;
-}
 
-footer .about {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-footer p {
-  color: #8d99ae;
-}
-
-.logo-text {
-  font-size: 4.5rem;
-  font-weight: bold;
-  color: #ffbe0b;
-}
-
-footer .contact {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  color: #fff;
-  margin-bottom: 1px;
-  font-size: 1.5rem;
-}
-
-footer .contact span {
-  padding: 10px;
-}
-footer .contact i {
-  padding: 10px;
-  font-size: 30px;
-}
-
-footer .contact a {
-  text-decoration: none;
-  font-size: 30px;
-  color: #0077b6;
-}
-
-footer .socials a {
-  margin: 10px;
-  font-size: 30px;
-  color: #fcbf49;
-  text-decoration: none;
-}
 /* Mobile first responsive design */
 @media (min-width: 675px) {
-  nav {
-    flex-direction: row;
-    justify-content: space-between;
+  .header-content h1 {
+    font-size: 5rem;
+    padding: 10px;
+    margin-top: 20px;
+    color: #14213d;
   }
-  nav ul {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin-right: 20px;
-  }
+
   .container-flex {
     flex-direction: row;
   }
-  nav ul li {
-    padding: 10px;
-  }
+
   main {
     width: 70%;
   }

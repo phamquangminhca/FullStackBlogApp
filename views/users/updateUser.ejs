@@ -24,27 +24,30 @@
         <i class="fas fa-user-plus"></i>
       </h1>
 
-      <small class="error">
-        <i class="fas fa-exclamation-circle"></i>
-        Invalid Credentials
-      </small>
-      <form action="/login" method="POST">
+      <% if(error) { %>
+        <small class="error">
+          <i class="fas fa-exclamation-circle"></i>
+          <%=error%>
+        </small>
+      <% }%>
+      <form action="/api/v1/users/update?_method=PUT" method="POST">
         <!-- full name -->
         <label for="name">Full Name</label>
-        <input type="text" name="name" id="name" />
+        <input type="text" value="<%=user.fullname%>" name="fullname" id="name" />
         <!-- email -->
         <label for="email">Email</label>
-        <input type="email" name="email" id="email" />
+        <input type="email" value="<%=user.email%>" name="email" id="email" />
 
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" />
+        <label for="role">Role</label>
+        <input type="text" value="<%=user.role%>" name="role" />
 
-        <button type="submit">Register</button>
+        <label for="bio">Bio</label>
+        <input type="text" value="<%=user.bio%>" name="bio" />
 
-        <p>Already have an account? <a href="/register">Login</a></p>
+        <button type="submit">Update User</button>
       </form>
     </div>
-    
+
     <!-- footer -->
     <%-include('../partials/footer.ejs') %>
   </body>

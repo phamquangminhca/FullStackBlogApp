@@ -11,18 +11,19 @@
     ></script>
     <!-- CSS -->
     <link rel="stylesheet" href="/css/form.css" />
-    
-    <title>Register</title>
+    <title>Comment Update</title>
   </head>
   <body>
     <!-- nav -->
     <%-include('../partials/navbar.ejs') %>
+
     <div class="form-container">
       <!-- icon -->
-      <h1>
-        Register
-        <i class="fas fa-user-plus"></i>
-      </h1>
+      <h1>Update Comment</h1>
+      <p>
+        <!-- lock icon -->
+        <i class="fas fa-lock"></i>
+      </p>
 
       <% if(error) { %>
         <small class="error">
@@ -31,28 +32,14 @@
         </small>
       <% }%>
 
-      <form action="/api/v1/users/register" method="POST">
-        <!-- full name -->
-        <label for="name">Full Name</label>
-        <input type="text" name="fullname" />
-        <!-- email -->
-        <label for="email">Email</label>
-        <input type="email" name="email" />
+      <form action="/api/v1/comments/<%=comment?._id%>?_method=PUT&postId=<%=post?._id%>" method="POST">
+        <label for="message">Message</label>
+        <input type="text" value="<%=comment?.message%>" name="message" />
 
-        <label for="role">Role</label>
-        <input type="text" name="role" />
-
-        <label for="bio">Bio</label>
-        <input type="text" name="bio" />
-
-        <label for="password">Password</label>
-        <input type="password" name="password" />
-
-        <button type="submit">Register</button>
-
-        <p>Already have an account? <a href="/register">Login</a></p>
+        <button type="submit">Update Comment</button>
       </form>
     </div>
+    
     <!-- footer -->
     <%-include('../partials/footer.ejs') %>
   </body>

@@ -9,7 +9,12 @@ const commentRoutes = require('./routes/comments/comments');
 const globalErrorHandler = require('./middlewares/globalErrorHandler');
 const app = express();
 const ejs = require('ejs');
+const Post = require('./model/post/Post');
+const { truncatePost } = require('./utils/helpers');
 require('./config/dbConnect');
+
+//helpers
+app.locals.truncatePost = truncatePost;
 
 //middlewares
 app.use(express.json()); //pass incoming data
@@ -46,8 +51,18 @@ app.use((req, res, next) => {
 })
 
 //render homepage
-app.get('/', (req, res) => {
-    res.render('index');
+app.get('/', async (req, res) => {
+    try {
+        const posts = await Post.find().populate('user');
+        res.render('index', {
+            posts,
+            error:'',
+        })
+    } catch (error) {
+        res.render('index', {
+            error: error.message,
+        });
+    }
 })
 
 //users route

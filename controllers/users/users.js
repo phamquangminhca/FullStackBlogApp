@@ -4,9 +4,9 @@ const appErr = require('../../utils/appErr');
 const { log } = require('console');
 
 const registerCtrl = async (req, res, next) => {
-    const { fullname, email, password } = req.body;
+    const { fullname, email, password, role, bio } = req.body;
     //check if field is empty
-    if(!fullname || !email || !password) {
+    if(!fullname || !email || !password || !role || !bio) {
         return res.render('users/register', {
             error: 'All fields are required',
         });
@@ -16,7 +16,6 @@ const registerCtrl = async (req, res, next) => {
         const userFound = await User.findOne({email});
         //Throw an error
         if(userFound) {
-            // return next(appErr('User already exist'))
             return res.render('users/register', {
                 error: 'User already exist',
             });
@@ -28,20 +27,27 @@ const registerCtrl = async (req, res, next) => {
         const user = await User.create({
             fullname,
             email,
+            role,
+            bio,
             password: passwordHashed,
         })
+
+        //save the user into session
+        req.session.userAuth = user._id;
+        console.log(req.session);
+
         //redirect
         res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        // res.json(error);
-        return next(appErr(error))
+        return res.render('users/register', {
+            error: error.message,
+        });
     }
 }
 
 const loginCtrl = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        // return next(appErr('Email and password fields are required'));
         return res.render('users/login', {
             error: 'Email and password fields are required',
         });
@@ -50,7 +56,6 @@ const loginCtrl = async (req, res, next) => {
         //Check if email exists
         const userFound = await User.findOne({ email });
         if (!userFound) {
-            // return next(appErr('Invalid login credentials'));
             return res.render('users/login', {
                 error: 'Invalid login credentials',
             });
@@ -58,7 +63,6 @@ const loginCtrl = async (req, res, next) => {
         //Verify password
         const isPasswordValid = await bcrypt.compare(password, userFound.password);
         if (!isPasswordValid) {
-            // return next(appErr('Invalid login credentials'));
             return res.render('users/login', {
                 error: 'Invalid login credentials',
             });
@@ -70,7 +74,9 @@ const loginCtrl = async (req, res, next) => {
         //redirect
         res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        res.json(error);
+        return res.render('users/login', {
+            error: error.message,
+        });
     }
 }
 
@@ -87,12 +93,19 @@ const userDetailsCtrl = async (req, res) => {
         const userId = req.params.id;
         //find the user
         const user = await User.findById(userId);
-        res.json({
-            status: 'success',
-            data: user,
+        // res.json({
+        //     status: 'success',
+        //     data: user,
+        // });
+        res.render('users/updateUser', {
+            user,
+            error:'',
         })
     } catch (error) {
-        res.json(error);
+        return res.render('users/updateUser', {
+            user: await User.findById(req.params.id),
+            error:error.message,
+        })
     }
 }
 
@@ -101,6 +114,7 @@ const profileCtrl = async (req, res) => {
         // console.log(req.session.userAuth);
         //get the logged in user
         const user = await User.findById(req.session.userAuth).populate('posts').populate('comments');
+        console.log(user);
         res.render('users/profile', { user })
     } catch (error) {
         res.json(error);
@@ -128,7 +142,7 @@ const uploadProfilePhotoCtrl = async (req, res, next) => {
         }
 
         //Update profile photo
-        const user = await User.findByIdAndUpdate(userId, {
+        await User.findByIdAndUpdate(userId, {
             profileImage: req.file.path,
         }, {
             new: true,
@@ -180,49 +194,65 @@ const uploadCoverPhotoCtrl = async (req, res) => {
 const updatePasswordCtrl = async (req, res, next) => {
     const { password } = req.body;
     try {
+        if(!password) {
+            return res.render('users/updatePassword', {
+                error: 'Please provide password field',
+            });
+        }
         //Check if user is updating the password
         if (password) {
             const salt = await bcrypt.genSalt(10);
             const passwordHashed = await bcrypt.hash(password, salt);
              //Update user
-            await User.findByIdAndUpdate(req.params.id, {
+            await User.findByIdAndUpdate(req.session.userAuth, {
                 password: passwordHashed,
             }, {
                 new: true,
             })
         }
-        res.json({
-            status: 'success',
-            user: 'Password has been changed successfully',
-        })
+        res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        return next(appErr('Please provide password field'));
+        return res.render('users/updatePassword', {
+            error: error.message,
+        });
     }
 }
 
 const updateUserCtrl = async (req, res, next) => {
-    const { fullname, email } = req.body;
+    const { fullname, email, role, bio } = req.body;
     try {
+        const user = await User.findById(req.session.userAuth);
+        if (!fullname || !email || !role || !bio) {
+            return res.render('users/updateUser', {
+                error: 'Full name and email fields are required',
+                user,
+            });
+        }
         //check if email is not taken
         if(email) {
             const emailTaken = await User.findOne({email});
-            if (emailTaken) {
-                return next(appErr('Email is taken', 400));
+            if (emailTaken && email !== user.email) {
+                return res.render('users/updateUser', {
+                    error: 'Email is taken',
+                    user,
+                })
             }
         }
         //update the user
-        const user = await User.findByIdAndUpdate(req.params.id, {
+        await User.findByIdAndUpdate(req.session.userAuth, {
             fullname,
             email,
+            role,
+            bio,
         }, {
             new: true,
         })
-        res.json({
-            status: 'success',
-            data: user
-        })
+        res.redirect('/api/v1/users/profile-page')
     } catch (error) {
-        return next(appErr(error));
+        return res.render('users/updateUser', {
+            error: error.message,
+            user: await User.findById(req.session.userAuth),
+        })
     }
 }
 

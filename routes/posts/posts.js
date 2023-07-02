@@ -3,12 +3,35 @@ const { createPostCtrl, fetchPostsCtrl, fetchPostCtrl, deletePostCtrl, updatePos
 const protected = require('../../middlewares/protected.js');
 const multer = require('multer');
 const storage = require('../../config/cloudinary');
+const Post = require('../../model/post/Post');
 
 const postRoutes = express.Router();
 
 //instance of multer
 const upload = multer({
     storage,
+})
+
+//forms
+postRoutes.get('/get-post-form', (req, res) => {
+    res.render('posts/addPost', {
+        error: '',
+    })
+})
+
+postRoutes.get('/get-update-form/:id', async(req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        res.render('posts/updatePost', {
+            post,
+            error: '',
+        });
+    } catch (error) {
+        return res.render('posts/postDetails', {
+            post: await Post.findById(req.params.id),
+            error: error.message,
+        });
+    }
 })
 
 //POST/api/v1/posts

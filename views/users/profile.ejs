@@ -30,7 +30,14 @@
             </a>
           </p>
           <p>
-            <i class="fas fa-edit"></i>
+            <a style="text-decoration: none;" href="/api/v1/users/<%=user?._id%>">
+              <i class="fas fa-edit"></i>
+            </a>
+          </p>
+          <p>
+            <a style="text-decoration: none;" href="/api/v1/users/update-user-password">
+              <i style="color: yellow;" class="fa-solid fa-key fas"></i>
+            </a>
           </p>
         </div>
         <!-- upload cover image icon -->
@@ -69,90 +76,41 @@
     <div class="latest-post-title">
       <!-- Icon -->
       <i class="fas fa-book-open"></i>
-      <h1>Latest Posts (20)</h1>
+      <h1>Latest Posts (<%=user?.posts.length%>)</h1>
       
     </div>
 
+    
+
     <!-- content -->
     <section class="container-flex">
-        <article class="post-content">
-          
-          <img src="/images/post3.jpg" alt="" class="post-image" />
-          <p class="post-info">
-            <span class="post-author">
-              <i class="fas fa-user"></i>
-              <a href="#">John Doe</a>
-            </span>
-            <span class="post-date">
-              <i class="far fa-calendar-alt"></i>
-              <time datetime="2020-01-01">January 1, 2020</time>
-            </span>
-          </p><h1 class="post-title">Become a Web Developer</h1>
-          <p class="post-body">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Officia
-            itaque inventore culpa placeat! Cum nam optio, labore, voluptas sunt
-            quam rem cupiditate laboriosam amet reiciendis velit doloribus eum!
-            Repudiandae, odio?
-          </p>
-          <!-- category -->
-          <div class="post-category">
-            <span>Category:</span>
-          </div>
-          <a href="/" class="post-read-more">Continue Reading...</a>
-        </article>
-
-        <article class="post-content">
-          <img src="/images/post7.jpg" alt="" class="post-image" />
-          <p class="post-info">
-            <span class="post-author">
-              <i class="fas fa-user"></i>
-              <a href="#">John Doe</a>
-            </span>
-            <span class="post-date">
-              <i class="far fa-calendar-alt"></i>
-              <time datetime="2020-01-01">January 1, 2020</time>
-            </span>
-          </p><h1 class="post-title">How to Take care of Cat</h1>
-          <p class="post-body">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Officia
-            itaque inventore culpa placeat! Cum nam optio, labore, voluptas sunt
-            quam rem cupiditate laboriosam amet reiciendis velit doloribus eum!
-            Repudiandae, odio?
-          </p>
-          <!-- category -->
-          <div class="post-category">
-            <span>Category:</span>
-          </div>
-          <a href="/" class="post-read-more">Continue Reading...</a>
-        </article>
-
-        <article class="post-content">
-          
-          <img src="/images/post7.jpg" alt="" class="post-image" />
-          <p class="post-info">
-            <span class="post-author">
-              <i class="fas fa-user"></i>
-              <a href="#">John Doe</a>
-            </span>
-            <span class="post-date">
-              <i class="far fa-calendar-alt"></i>
-              <time datetime="2020-01-01">January 1, 2020</time>
-            </span>
-          </p>
-          <h1 class="post-title">How to Take care of Cat</h1>
-          <p class="post-body">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Officia
-            itaque inventore culpa placeat! Cum nam optio, labore, voluptas sunt
-            quam rem cupiditate laboriosam amet reiciendis velit doloribus eum!
-            Repudiandae, odio?
-          </p>
-          <!-- category -->
-          <div class="post-category">
-            <span>Category:</span>
-          </div>
-          <a href="/" class="post-read-more">Continue Reading...</a>
-        </article>
-
+      <% if(user?.posts?.length <= 0) { %>
+        <h1>You have no post</h1>
+      <% } else { %>
+        <% user?.posts?.forEach(post => { %>
+          <article class="post-content">
+            <img src="<%=post?.image%>" alt="" class="post-image" />
+            <p class="post-info">
+              <span class="post-author">
+                <i class="fas fa-user"></i>
+                <a href="#"><%=user?.fullname%></a>
+              </span>
+              <span class="post-date">
+                <i class="far fa-calendar-alt"></i>
+                <time datetime="<%=post?.createdAt%>"><%=post?.createdAt.toLocaleDateString()%></time>
+              </span>
+            </p><h1 class="post-title"><%=post?.title%></h1>
+            <p class="post-body">
+              <%=truncatePost(post?.description)%>
+            </p>
+            <!-- category -->
+            <div class="post-category">
+              <span>Category: <%=post?.category%></span>
+            </div>
+            <a href="/api/v1/posts/<%=post?._id%>" class="post-read-more">Continue Reading...</a>
+          </article>
+        <% }) %>
+      <% }%>
         
     
       
