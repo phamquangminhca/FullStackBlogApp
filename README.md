@@ -31,5 +31,5 @@ This is a blog website where people can create accounts and write posts, and oth
 5. Submit a pull request.
 
 ## Contact
-Phone: (+1) 778 960 1811
-Email: minhpham10b@gmail.com
+- Phone: (+1) 778 960 1811
+- Email: minhpham10b@gmail.com
